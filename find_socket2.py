@@ -147,7 +147,7 @@ def finder(bport,myip,s,maxfails=5):
 	return addrlist
 
 if __name__=="__main__":
-	#s,myip=init()
+	s,myip=init()
 	#fixcloneproblems()
-	#responder(bport,myip,s)
-	findtornodes()
+	responder(bport,myip,s)
+	#findtornodes()
