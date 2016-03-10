@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from subprocess import call
 
 print("no known networks, please enter information: ")
