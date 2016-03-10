@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+echo "found internet connection, updating scripts..."
+cd /root/scripts
+git pull origin master
