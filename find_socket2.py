@@ -87,22 +87,15 @@ def getmyip():
         	except:
 			print("could not get wireless ip")
 		print("my ip address is "+myip)
-		with open("/root/scripts/do_net.py","w") as f:
-			f.seek(0)
-			f.truncate()
-			f.write("#this is meant to do nothing")
-			f.close()
+		call(["cp","/root/scripts/update","/root/scripts/do_net"])
 	if "eth0" in ni.interfaces() and myip=="no ip":
 	        print("could not find wlan0, checking eth0")
 		try:
 		        myip=ni.ifaddresses("eth0")[2][0]['addr']
 		except:
 			print("could not find ethernet, making network")
-	        with open("/root/scripts/do_net.py","w") as f:
-                        f.seek(0)
-                        f.truncate()
-			f.write("#this is meant to do nothing")
-                        f.close()
+		print("found eth0")
+	        call(["cp","/root/scripts/update","/root/scripts/do_net"])
 	if myip=="no ip":
 	        print("could not find suitable interface with netifaces")
 		call(["ifconfig","wlan0","down"])
@@ -111,7 +104,7 @@ def getmyip():
 		call(["ifconfig","wlan0","inet","10.0.1.1"])
 		call(["service","isc-dhcp-server","start"])
 		myip="10.0.1.1"
-		call(["cp","/root/scripts/new_net.py","/root/scripts/do_net.py"])
+		call(["cp","/root/scripts/new_net.py","/root/scripts/do_net"])
 	return myip
 
 def init(bport=5555):
