@@ -1,0 +1,6 @@
+#from /etc/rc.local
+
+/usr/bin/python /root/scripts/find_socket2.py &
+/usr/bin/python /root/scripts/fixclone.py &
+#docker rm virtmachine
+#/bin/bash /root/startvirt

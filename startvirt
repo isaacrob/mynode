@@ -1,0 +1,1 @@
+docker run -d -P --name test_sshd --privileged -p 0.0.0.0:5022:22 eg_sshd
