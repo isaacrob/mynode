@@ -1,5 +1,29 @@
 #from /etc/rc.local
 
+wget -q --spider http://google.com
+
+if [ $? -eq 0 ]; then
+    echo "found internet, updating"
+    cd /root/scripts
+    git pull origin master
+else
+    echo "Offline, not updating"
+    echo "trying to set up eth0"
+    echo "timeout 10;" >> /tmp/awediawmefi 
+    #write temporary configure file
+    #work around for no timeout command line paramater for dhclient on RPi
+    dhclient -cf /tmp/awediawmefi eth0
+    #test connection
+    wget -q --spider http://google.com
+    if [ $? -eq 0 ]; then
+      echo "connection made, updating"
+      cd /root/scripts
+      git pull origin master
+    else
+      echo "still can't make connection, exiting"
+    fi
+fi
+
 /usr/bin/python /root/scripts/find_socket2.py &
 /usr/bin/python /root/scripts/fixclone.py &
 #docker rm virtmachine
