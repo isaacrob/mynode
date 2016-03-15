@@ -11,7 +11,7 @@ if [ $NEWCLONE -eq 1 ]; then
     rm -rf /var/lib/tor/cluster
     rm -rf /var/lib/tor/virtcluster
     service tor restart
-    shutdown -r now
+    echo "recommend restarting as soon as possible" 
 fi
 
 wget -q --spider http://google.com
