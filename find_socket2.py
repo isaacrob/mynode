@@ -58,14 +58,31 @@ def findtornodes():
 	#will only write found onions for the next search
 	#this is because some onions may simply cease to be part of the system
 	#this allows for a more dynamic system, albiet with the chance of missing a fringe node
+	#remember this only appends so this stops duplicates
 	for onion in totalonionlist:
 		if onion not in otheronions:
 			otheronionsfile.write(onion+"\n")
 	otheronionsfile.close()
-	#for now, not passing list to other nodes
+
+	#copy file to other nodes
+	for onion in totalonionlist:
+		c=paramiko.SSHClient()
+		c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                proxy=paramiko.ProxyCommand(config.lookup(onion)["proxycommand"])
+		c.connect(onion,username="root",password="raspberry",sock=proxy,banner_timeout=10.0)
+		trans=c.get_transpot()
+		sftp=paramiko.SFTPClient.from_transport(trans)
+		remoteonionsfile=sftp.open("/root/scripts/known_nodes")
+		remoteonionsfile.truncate()
+		remoteonionsfile.write(totalonionlist)	
+		remoteonionsfile.close()
+		sftp.close()
+		c.close()
+
 	return totalonionlist
 
 def fixcloneproblems():
+	#now irrelevant from bash script "startup"
 	ifaces=ni.interfaces()
 	if "eth1" in ifaces:
 		print("this node needs to be reformatted")

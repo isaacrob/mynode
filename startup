@@ -1,5 +1,19 @@
 #from /etc/rc.local
 
+#problems arise when nodes are cloned, which is essentially every new image
+#this fixes that by checking for a duplicant ethernet
+#meaning eth0 mac address was changed and a new one added
+#which should only happen with an RPi after cloning
+grep eth1 /etc/udev/rules.d/70-persistent-net.rules && NEWCLONE=1 || NEWCLONE=0
+if [ $NEWCLONE -eq 1 ]; then
+    echo "this node was just cloned, resolving issues..."
+    rm /etc/udev/rules.d/70-persistent-net.rules
+    rm -rf /var/lib/tor/cluster
+    rm -rf /var/lib/tor/virtcluster
+    service tor restart
+    shutdown -r now
+fi
+
 wget -q --spider http://google.com
 
 if [ $? -eq 0 ]; then
@@ -20,11 +34,15 @@ else
       cd /root/scripts
       git pull origin master
     else
-      echo "still can't make connection, exiting"
+      echo "still can't make connection, making network..."
+      ifconfig wlan0 down
+      iwconfig wlan0 mode ad-hoc
+      iwconfig wlan0 essid "cluster access point"
+      ifconfig wlan0 inet 10.0.1.1
+      service isc-dhcp-server start
     fi
 fi
 
-/usr/bin/python /root/scripts/find_socket2.py &
-/usr/bin/python /root/scripts/fixclone.py &
+echo "finished configuring"
 #docker rm virtmachine
 #/bin/bash /root/startvirt
