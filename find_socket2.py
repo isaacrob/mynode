@@ -22,6 +22,7 @@ def findtornodes():
 	totalonionlist=set(otheronions+[myonion])
 	onionstocheck=otheronions
 	newonions=[]
+	workingonions=[]
 	while len(onionstocheck)>0:
 		for onion in onionstocheck:
 			if len(onion)>3:
@@ -31,6 +32,7 @@ def findtornodes():
 				proxy=paramiko.ProxyCommand(config.lookup(onion)["proxycommand"])
 				try:
 					c.connect(onion,username="root",password="raspberry",sock=proxy,banner_timeout=10.0)
+					workingonions.append(onion)
 				except paramiko.ssh_exception.SSHException:
 					print("error connecting to onion, moving on")
 					continue
@@ -65,17 +67,16 @@ def findtornodes():
 	otheronionsfile.close()
 
 	#copy file to other nodes
-	for onion in totalonionlist:
+	source="/root/scripts/known_nodes"
+	destination="/root/scripts/known_nodes"
+	for onion in workingonions:
 		c=paramiko.SSHClient()
 		c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 proxy=paramiko.ProxyCommand(config.lookup(onion)["proxycommand"])
 		c.connect(onion,username="root",password="raspberry",sock=proxy,banner_timeout=10.0)
 		trans=c.get_transpot()
 		sftp=paramiko.SFTPClient.from_transport(trans)
-		remoteonionsfile=sftp.open("/root/scripts/known_nodes")
-		remoteonionsfile.truncate()
-		remoteonionsfile.write(totalonionlist)	
-		remoteonionsfile.close()
+		sftp.put(source,destination)
 		sftp.close()
 		c.close()
 
